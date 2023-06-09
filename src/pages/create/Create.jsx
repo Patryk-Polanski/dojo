@@ -1,7 +1,10 @@
 import { useState } from 'react';
+
 import Select from 'react-select';
+import { useCollection } from '../../hooks/useCollection';
 
 import './Create.css';
+import { useEffect } from 'react';
 
 const categories = [
   { value: 'development', label: 'Development' },
@@ -17,9 +20,22 @@ export default function Create() {
   const [category, setCategory] = useState('');
   const [assignedUsers, setAssignedUsers] = useState([]);
 
+  const { documents } = useCollection('users');
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    if (documents) {
+      const options = documents.map((user) => ({
+        value: user,
+        label: user.displayName,
+      }));
+      setUsers(options);
+    }
+  }, [documents]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(name, details, dueDate, category.value);
+    console.log(name, details, dueDate, category.value, assignedUsers);
   };
 
   return (
@@ -62,7 +78,11 @@ export default function Create() {
         </label>
         <label>
           <span>Assign to:</span>
-          {/* assignee select here */}
+          <Select
+            options={users}
+            onChange={(option) => setAssignedUsers(option)}
+            isMulti
+          />
         </label>
         <button className='btn'>Add Project</button>
       </form>
