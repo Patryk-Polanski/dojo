@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useAuthContext } from '../../hooks/useAuthContext';
 import { useCollection } from '../../hooks/useCollection';
 import ProjectList from '../../components/ProjectList';
 import ProjectFilter from './ProjectFilter';
@@ -7,12 +8,36 @@ import ProjectFilter from './ProjectFilter';
 import './Dashboard.css';
 
 export default function Dashboard() {
-  const [currentFilter, setCurrentFilter] = useState('all');
   const { documents, error } = useCollection('projects');
+  const [currentFilter, setCurrentFilter] = useState('all');
+  const { user } = useAuthContext();
 
   const changeFilter = (newFilter) => {
     setCurrentFilter(newFilter);
   };
+
+  const filteredProjects = documents
+    ? documents.filter((document) => {
+        switch (currentFilter) {
+          case 'all':
+            return true;
+          case 'mine':
+            let assignedToMe = false;
+            document.assignedUsersList.forEach((u) => {
+              if (u.id === user.uid) assignedToMe = true;
+            });
+            return assignedToMe;
+          case 'development':
+          case 'design':
+          case 'sales':
+          case 'marketing':
+            console.log(document.category, currentFilter);
+            return document.category === currentFilter;
+          default:
+            return true;
+        }
+      })
+    : null;
 
   return (
     <div>
@@ -24,7 +49,7 @@ export default function Dashboard() {
           changeFilter={changeFilter}
         />
       )}
-      {documents && <ProjectList projects={documents} />}
+      {filteredProjects && <ProjectList projects={filteredProjects} />}
     </div>
   );
 }
