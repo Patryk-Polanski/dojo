@@ -5,7 +5,7 @@ import { useFirestore } from '../../hooks/useFirestore';
 import { timestamp } from '../../firebase/config';
 import Select from 'react-select';
 import { useCollection } from '../../hooks/useCollection';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import './Create.css';
 import { useEffect } from 'react';
@@ -32,7 +32,7 @@ export default function Create() {
 
   const { addDocument, response } = useFirestore('projects');
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (documents) {
@@ -83,7 +83,7 @@ export default function Create() {
     console.log(project);
     await addDocument(project);
     if (!response.error) {
-      history.push('/');
+      navigate('/');
     }
   };
 
